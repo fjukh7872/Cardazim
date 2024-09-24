@@ -2,32 +2,34 @@ import argparse
 import sys
 import struct
 import socket
+import threading
 
 
-###########################################################
-####################### YOUR CODE #########################
-###########################################################
+
+def single_client(conn: socket, addr : tuple[str, int]):
+    '''
+    Handling a single client.
+    '''
+    length = struct.unpack("<I", conn.recv(4))[0]
+    message = b''
+    while len(message) < length:
+        message += conn.recv(4096)
+    message = message.decode()
+    print(f"Received data: {message}")
+    conn.close()
 
 
-def run_server(ip, port):
+def run_server(ip: str, port: int):
+    '''
+    Running the entire server with the provided ip and port.
+    '''
     serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serv.bind((ip, port))
     while True:
         serv.listen()
         conn, addr = serv.accept()
-        length = struct.unpack("<I", conn.recv(4))[0]
-        message = b''
-        while len(message) < length:
-            message += conn.recv(4096)
-        message = message.decode()
-        print(f"Received data: {message}")
-        conn.close()
-
-
-###########################################################
-##################### END OF YOUR CODE ####################
-###########################################################
-
+        print(addr)
+        threading.Thread(target = single_client, args = (conn, addr)).start()
 
 
 def get_args():

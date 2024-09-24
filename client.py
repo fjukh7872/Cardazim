@@ -4,22 +4,16 @@ import struct
 import socket
 
 
-###########################################################
-####################### YOUR CODE #########################
-###########################################################
 
-
-def send_data(server_ip, server_port, data):
+def send_data(server_ip: str, server_port: int, data: str):
+    '''
+    Sending the data to the provided server.
+    '''
     message = struct.pack("<I", len(data.encode())) + data.encode()
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect((server_ip, server_port))
     client.sendall(message)
     client.close()
-
-
-###########################################################
-##################### END OF YOUR CODE ####################
-###########################################################
 
 
 def get_args():
