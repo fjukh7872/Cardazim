@@ -13,7 +13,7 @@ class Connection():
         return f"Connection from {self.connection.getsockname()} to {self.connection.getpeername()}"
     
     def send_message(self, message: bytes):
-        self.connection.sendall(message)
+        self.connection.sendall(struct.pack("<I", len(message)) + message)
     
     def receive_message(self) -> str:
         length = struct.unpack("<I", self.connection.recv(4))[0]
@@ -29,11 +29,9 @@ class Connection():
     
     @classmethod
     def connect(cls, host: str, port: int) -> Connection:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serv:
-            serv.bind((host, port))
-            serv.listen()
-            conn = serv.accept()[0]
-        return conn
+        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        conn.connect((host, port))
+        return Connection(conn)
     
     def close(self):
         self.connection.close()
